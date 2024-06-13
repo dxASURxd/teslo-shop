@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { Product } from './entities/product.entity';
+import { Product, ProductIMage } from './entities';
 import { validate as isUUID } from 'uuid';
 
 @Injectable()
@@ -17,14 +17,25 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
+    @InjectRepository(ProductIMage)
+    private readonly productImageRepository: Repository<ProductIMage>,
+
+
   ) { }
 
   async create(createProductDto: CreateProductDto) {
 
     try {
-      const product = this.productRepository.create(createProductDto);
+      const { images = [], ...productDetails } = createProductDto
+
+      const product = this.productRepository.create({
+        ...productDetails,
+        images: images.map(image => this.productImageRepository.create({ url: image }))
+      });
       await this.productRepository.save(product);
-      return product;
+
+      return { ...product, images };
+
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -57,7 +68,7 @@ export class ProductsService {
     }
     if (!product)
       throw new NotFoundException(`Product with ${term} not found`);
-    
+
     return product;
   }
 
@@ -65,7 +76,8 @@ export class ProductsService {
 
     const product = await this.productRepository.preload({
       id: id,
-      ...updateProductDto
+      ...updateProductDto,
+      images: []
     });
 
     if (!product) throw new NotFoundException(`Product with id: ${id} not found`);

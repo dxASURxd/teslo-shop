@@ -80,5 +80,5 @@ export class Product {
         (productImage) => productImage.product,
         { cascade: true }
     )
-    images? : ProductIMage;
+    images? : ProductIMage[];
 }
