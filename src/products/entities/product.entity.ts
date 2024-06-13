@@ -11,7 +11,7 @@ export class Product {
     })
     title: string;
 
-    @Column('float',{
+    @Column('float', {
         default: 0
     })
     price: number;
@@ -32,7 +32,7 @@ export class Product {
     })
     stock: number;
 
-    @Column('text',{
+    @Column('text', {
         array: true
     })
     sizes: string[];
@@ -41,35 +41,35 @@ export class Product {
     gender: string;
 
 
+    // TAGS
     @Column('text', {
         array: true,
         default: []
     })
     tags: string[];
 
-    // images
+    // *-*-*-*-*-*-*
 
     @BeforeInsert()
     checkSlugInsert() {
-
-        if ( !this.slug ) {
+        if (!this.slug) {
             this.slug = this.title;
         }
 
         this.slug = this.slug
             .toLowerCase()
-            .replaceAll(' ','_')
-            .replaceAll("'",'')
-
+            .replaceAll(' ', '_')
+            .replaceAll("'", '')
     }
 
     @BeforeUpdate()
     checkSlugUpdate() {
         this.slug = this.slug
             .toLowerCase()
-            .replaceAll(' ','_')
-            .replaceAll("'",'')
+            .replaceAll(' ', '_')
+            .replaceAll("'", '')
     }
 
+    // *-*-*-*-*-*-*
 
 }

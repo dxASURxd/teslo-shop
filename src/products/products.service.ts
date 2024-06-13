@@ -22,20 +22,15 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto) {
 
     try {
-
       const product = this.productRepository.create(createProductDto);
       await this.productRepository.save(product);
-
       return product;
-
     } catch (error) {
       this.handleDBExceptions(error);
     }
-
   }
 
   findAll(paginationDto: PaginationDto) {
-
     const { limit = 10, offset = 0 } = paginationDto;
 
     return this.productRepository.find({
@@ -52,6 +47,7 @@ export class ProductsService {
     if (isUUID(term)) {
       product = await this.productRepository.findOneBy({ id: term });
     } else {
+      // el query builder no es mas que un metodo que permite crear querys
       const queryBuilder = this.productRepository.createQueryBuilder();
       product = await queryBuilder
         .where('UPPER(title) =:title or slug =:slug', {
@@ -59,10 +55,9 @@ export class ProductsService {
           slug: term.toLowerCase(),
         }).getOne();
     }
-
     if (!product)
       throw new NotFoundException(`Product with ${term} not found`);
-
+    
     return product;
   }
 
@@ -82,7 +77,6 @@ export class ProductsService {
     } catch (error) {
       this.handleDBExceptions(error);
     }
-
   }
 
   async remove(id: string) {
@@ -92,14 +86,12 @@ export class ProductsService {
   }
 
   private handleDBExceptions(error: any) {
-
     if (error.code === '23505')
       throw new BadRequestException(error.detail);
 
     this.logger.error(error)
     // console.log(error)
     throw new InternalServerErrorException('Unexpected error, check server logs');
-
   }
 
 }
